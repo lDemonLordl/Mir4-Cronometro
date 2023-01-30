@@ -17,10 +17,13 @@ class Reloj(customtk.CTk):
         self.check = 0
         def aparicion():
             if self.aparicion == 0:
-                self.hour = 1
-                self.mins = 1
-                self.sec = 59
-                self.notificacion.show_toast("Tiempo finalizado.", f"El tiempo ha finalizado.\nAparicion de la mina en {self.hour}Hora {self.mins}Minutos con {self.sec}Segundos", duration=10, threaded=True)
+                if self.color.get() == "Amarilla":
+                    self.mins = 59
+                    self.sec = 60
+                if self.color.get() == "Roja":
+                    self.mins = 29
+                    self.sec = 60
+                self.notificacion.show_toast("Tiempo finalizado.", f"El tiempo ha finalizado.\nAparicion de la mina en {self.mins} Minutos con {self.sec} Segundos", duration=10, threaded=False)
                 while self.check == 2:
                     if self.sec == 0:
                         if self.sec == 0 and self.hour or self.mins != 0:
@@ -35,85 +38,128 @@ class Reloj(customtk.CTk):
                             self.mins = 59
                     if self.sec == 0 and self.mins == 0 and self.hour == 0:
                         self.check = 0
-                        self.notificacion.show_toast("Aparición de mina", f"Tu mina ha aparecido en el:\n{self.piso.get()}\nColor: {self.color.get()}\nUbicación: {self.ubicacion.get()}", duration=10, threaded=True)
+                        self.notificacion.show_toast("Aparición de mina", f"Tu mina ha aparecido en el:\n{self.piso.get()}\nColor: {self.color.get()}\nUbicación: {self.ubicacion.get()}", duration=10, threaded=False)
                         print(f"Tu mina ha aparecido en el:\n{self.piso.get()}\nColor: {self.color.get()}\nUbicación: {self.ubicacion.get()}")
                         enable()
                         break
                     self.sec -= 1
                     self.aparicionLabel.configure(text=f"Aparicion\n{self.hour}h:{self.mins}m:{self.sec}s")
+                    print(f"Aparicion en: {self.hour}h:{self.mins}m:{self.sec}s", end="\r")
                     sleep(1)
-        def realTime():
-            self.actualTime = datetime.now().strftime("%H:%M:%S")
-            self.actualSec = str(self.actualTime)[6:]
-            self.actualMin = str(self.actualTime)[3:-3]
-            self.actualHour = str(self.actualTime)[:-6]
-            #self.timeLabel.after(1, time)
         def time():
-            if self.hourEntry.get() == "":
-                self.hourEntry.delete(0, "end")
-                self.hourEntry.insert(0, 00)
-            if self.minsEntry.get() == "":
-                self.minsEntry.delete(0, "end")
-                self.minsEntry.insert(0, 00)
-            if self.secEntry.get() == "":
-                self.secEntry.delete(0, "end")
-                self.secEntry.insert(0, 00)
-            if self.hourEntry.get() != "" or self.minsEntry.get() != "" or self.secEntry.get() != "":
-                if self.piso.get() != "" and self.color.get() != "" and self.ubicacion.get() != "":
-                    self.check = 1
-                    self.hour = int(self.hourEntry.get())
-                    self.mins = int(self.minsEntry.get())
-                    self.sec = int(self.secEntry.get())
-            #if self.hourEntry.get() == "" and self.minsEntry.get() == "" and self.secEntry.get() == "":
-            #    messagebox.showinfo(title="Vacio", message="Los espacios 'Piso', 'Color: Mina' y 'Ubicacion'\nNo pueden estar Vacios.")
-            if self.check == 2: pass
-            elif self.check == 1:
-                self.aparicion = 1
-                disable()
-                while self.check == 1:
-                    if self.hour == 0:
-                        if self.mins == 0:
+            # Piso, Color y Ubicacion = "Vacio"
+            if self.piso.get() == "" and self.color.get() == "" and self.ubicacion.get() == "":
+                messagebox.showinfo(title="Vacio", message="Los espacios 'Piso', 'Color: Mina' y 'Ubicacion'\nNo pueden estar Vacios.")
+            # Color y Ubicacion = "Vacio"
+            elif self.piso.get() != "" and self.color.get() == "" and self.ubicacion.get() == "":
+                messagebox.showinfo(title="Vacio", message="Los espacios 'Color: Mina' y 'Ubicacion'\nNo pueden estar Vacios.")
+            # Ubicacion = "Vacio"
+            elif self.piso.get() != "" and self.color.get() != "" and self.ubicacion.get() == "":
+                messagebox.showinfo(title="Vacio", message="El espacio 'Ubicacion'\nNo puede estar Vacio.")
+            # Piso = "Vacio"
+            elif self.piso.get() == "" and self.color.get() != "" and self.ubicacion.get() != "":
+                messagebox.showinfo(title="Vacio", message="El espacio 'Piso'\nNo puede estar Vacio.")
+            # Color = "Vacio"
+            elif self.piso.get() != "" and self.color.get() == "" and self.ubicacion.get() != "":
+                messagebox.showinfo(title="Vacio", message="El espacio 'Color: Mina'\nNo puede estar Vacio.")
+            # Piso y Color = "Vacio"
+            elif self.piso.get() == "" and self.color.get() == "" and self.ubicacion.get() != "":
+                messagebox.showinfo(title="Vacio", message="Los espacios 'Piso' y 'Color: Mina'\nNo pueden estar Vacios.")
+            # Piso y Ubicacion = "Vacio"
+            elif self.piso.get() == "" and self.color.get() != "" and self.ubicacion.get() == "":
+                messagebox.showinfo(title="Vacio", message="Los espacios 'Piso' y 'Ubicacion'\nNo pueden estar Vacios.")
+            # Piso, Color y Ubicacion != "Vacio"
+            elif self.piso.get() != "" and self.color.get() != "" and self.ubicacion.get() != "":
+                print(f"Piso: {self.piso.get()} | Color: {self.color.get()} | Ubicacion: {self.ubicacion.get()} | Correctos.")
+                if self.hourEntry.get() == "" and self.minsEntry.get() == "" and self.secEntry.get() == "":
+                    messagebox.showinfo(title="Vacio", message="Los espacios 'Hora', 'Minutos' y 'Segundos'\nNo pueden estar Vacios.")
+                if self.hourEntry.get() != "" or self.minsEntry.get() != "" or self.secEntry.get() != "":
+                    if self.hourEntry.get() == "":
+                        self.hourEntry.delete(0, "end")
+                        self.hourEntry.insert(0, 00)
+                    if self.minsEntry.get() == "":
+                        self.minsEntry.delete(0, "end")
+                        self.minsEntry.insert(0, 00)
+                    if self.secEntry.get() == "":
+                        self.secEntry.delete(0, "end")
+                        self.secEntry.insert(0, 00)
+                    if self.hourEntry.get() != "" or self.minsEntry.get() != "" or self.secEntry.get() != "":
+                        self.check = 1
+                        self.hour = int(self.hourEntry.get())
+                        self.mins = int(self.minsEntry.get())
+                        self.sec = int(self.secEntry.get())
+                        print("Iniciando...")
+                    if self.check == 1:
+                        if self.color.get() == "Amarilla": self.aparicion = 1
+                        if self.color.get() == "Roja": self.aparicion = 30
+                        disable()
+                        print(self.check)
+                        while self.check == 1:
+                            if self.hour == 0:
+                                if self.mins == 0:
+                                    if self.sec == 0:
+                                        self.check = 2
+                                        if self.color.get() == "Amarilla": self.aparicion -= 1
+                                        if self.color.get() == "Roja": self.aparicion -= 30
+                                        self.timeLabel.configure(text="00h:00m:00s")
+                                        aparicion()
+                                        break
                             if self.sec == 0:
-                                self.check = 2
-                                self.aparicion -= 1
-                                self.timeLabel.configure(text="00h:00m:00s")
-                                aparicion()
-                                break
-                    if self.sec == 0:
-                        if self.sec == 0 and self.hour or self.mins != 0:
-                            self.sec = 60
-                        if self.mins != 0:
-                            self.mins -= 1
-                        if self.mins == 0 and self.hour >= 1:
-                            self.hour -= 1
-                            self.mins = 59
-                        if self.mins == 0 and self.hour == 1:
-                            self.hour = 0
-                            self.mins = 59
-                    self.sec -= 1
-                    if self.hour < 10 and self.mins < 10 and self.sec < 10:
-                        self.timeLabel.configure(text=f"0{self.hour}h:0{self.mins}m:0{self.sec}s")
-                        print("Hora Actual:", self.actualTime, " | ", f"Cronometro: 0{self.hour}h:0{self.mins}m:0{self.sec}s", " | ", f"Aparicion: 0{self.aparicion + self.hour}h:0{self.mins}m", end="\r")
-                    elif self.hour < 10 and self.mins < 10 and self.sec > 9:
-                        self.timeLabel.configure(text=f"0{self.hour}h:0{self.mins}m:{self.sec}s")
-                        print("Hora Actual:", self.actualTime, " | ", f"Cronometro: 0{self.hour}h:0{self.mins}m:{self.sec}s", " | ", f"Aparicion: 0{self.aparicion + self.hour}h:0{self.mins}m", end="\r")
-                    elif self.hour < 10 and self.mins > 9 and self.sec > 9:
-                        self.timeLabel.configure(text=f"0{self.hour}h:{self.mins}m:{self.sec}s")
-                        print("Hora Actual:", self.actualTime, " | ", f"Cronometro: 0{self.hour}h:{self.mins}m:{self.sec}s", " | ", f"Aparicion: 0{self.aparicion + self.hour}h:{self.mins}m", end="\r")
-                    elif self.hour < 10 and self.mins > 9 and self.sec < 10:
-                        self.timeLabel.configure(text=f"0{self.hour}h:{self.mins}m:0{self.sec}s")
-                        print("Hora Actual:", self.actualTime, " | ", f"Cronometro: 0{self.hour}h:{self.mins}m:0{self.sec}s", " | ", f"Aparicion: 0{self.aparicion + self.hour}h:{self.mins}m", end="\r")
-                    elif self.hour > 9 and self.mins < 10 and self.sec > 9:
-                        self.timeLabel.configure(text=f"{self.hour}h:0{self.mins}m:{self.sec}s")
-                        print("Hora Actual:", self.actualTime, " | ", f"Cronometro: {self.hour}h:0{self.mins}m:{self.sec}s", " | ", f"Aparicion: {self.aparicion + self.hour}h:0{self.mins}m", end="\r")
-                    elif self.hour > 9 and self.mins < 10 and self.sec < 10:
-                        self.timeLabel.configure(text=f"{self.hour}h:0{self.mins}m:0{self.sec}s")
-                        print("Hora Actual:", self.actualTime, " | ", f"Cronometro: {self.hour}h:0{self.mins}m:0{self.sec}s", " | ", f"Aparicion: {self.aparicion + self.hour}h:0{self.mins}m", end="\r")
-                    else:
-                        self.timeLabel.configure(text=f"{self.hour}h:{self.mins}m:{self.sec}s")
-                        print("Hora Actual:", self.actualTime, " | ", f"Cronometro: {self.hour}h:{self.mins}m:{self.sec}s", " | ", f"Aparicion: {self.aparicion + self.hour}h:{self.mins}m", end="\r")
-                    sleep(1)
-                    continue
+                                if self.sec == 0 and self.hour or self.mins != 0:
+                                    self.sec = 60
+                                if self.mins != 0:
+                                    self.mins -= 1
+                                if self.mins == 0 and self.hour >= 1:
+                                    self.hour -= 1
+                                    self.mins = 59
+                                if self.mins == 0 and self.hour == 1:
+                                    self.hour = 0
+                                    self.mins = 59
+                            self.sec -= 1
+                            if self.hour < 10 and self.mins < 10 and self.sec < 10:
+                                self.timeLabel.configure(text=f"0{self.hour}h:0{self.mins}m:0{self.sec}s")
+                                if self.color.get() == "Amarilla":
+                                    print(f"Cronometro: 0{self.hour}h:0{self.mins}m:0{self.sec}s", " | ", f"Aparicion: 0{self.aparicion + self.hour}h:{self.mins}m:{self.sec}s", end="\r")
+                                if self.color.get() == "Roja":
+                                    print(f"Cronometro: 0{self.hour}h:0{self.mins}m:0{self.sec}s", " | ", f"Aparicion: {self.aparicion + self.mins}m:{self.sec}s", end="\r")
+                            elif self.hour < 10 and self.mins < 10 and self.sec > 9:
+                                self.timeLabel.configure(text=f"0{self.hour}h:0{self.mins}m:{self.sec}s")
+                                if self.color.get() == "Amarilla":
+                                    print(f"Cronometro: 0{self.hour}h:0{self.mins}m:{self.sec}s", " | ", f"Aparicion: {self.aparicion + self.hour}h:{self.mins}m:{self.sec}s", end="\r")
+                                if self.color.get() == "Roja":
+                                    print(f"Cronometro: 0{self.hour}h:0{self.mins}m:{self.sec}s", " | ", f"Aparicion: {self.aparicion + self.mins}m:{self.sec}s", end="\r")
+                            elif self.hour < 10 and self.mins > 9 and self.sec > 9:
+                                self.timeLabel.configure(text=f"0{self.hour}h:{self.mins}m:{self.sec}s")
+                                if self.color.get() == "Amarilla":
+                                    print(f"Cronometro: 0{self.hour}h:{self.mins}m:{self.sec}s", " | ", f"Aparicion: {self.aparicion + self.hour}h:{self.mins}m:{self.sec}s", end="\r")
+                                if self.color.get() == "Roja":
+                                    print(f"Cronometro: 0{self.hour}h:{self.mins}m:{self.sec}s", " | ", f"Aparicion: {self.aparicion + self.mins}m:{self.sec}s", end="\r")
+                            elif self.hour < 10 and self.mins > 9 and self.sec < 10:
+                                self.timeLabel.configure(text=f"0{self.hour}h:{self.mins}m:0{self.sec}s")
+                                if self.color.get() == "Amarilla":
+                                    print(f"Cronometro: 0{self.hour}h:{self.mins}m:0{self.sec}s", " | ", f"Aparicion: {self.aparicion + self.hour}h:{self.mins}m:{self.sec}s", end="\r")
+                                if self.color.get() == "Roja":
+                                    print(f"Cronometro: 0{self.hour}h:{self.mins}m:0{self.sec}s", " | ", f"Aparicion: {self.aparicion + self.mins}m:{self.sec}s", end="\r")
+                            elif self.hour > 9 and self.mins < 10 and self.sec > 9:
+                                self.timeLabel.configure(text=f"{self.hour}h:0{self.mins}m:{self.sec}s")
+                                if self.color.get() == "Amarilla":
+                                    print(f"Cronometro: {self.hour}h:0{self.mins}m:{self.sec}s", " | ", f"Aparicion: {self.aparicion + self.hour}h:{self.mins}m:{self.sec}s", end="\r")
+                                if self.color.get() == "Roja":
+                                    print(f"Cronometro: {self.hour}h:0{self.mins}m:{self.sec}s", " | ", f"Aparicion: {self.aparicion + self.mins}m:{self.sec}s", end="\r")
+                            elif self.hour > 9 and self.mins < 10 and self.sec < 10:
+                                self.timeLabel.configure(text=f"{self.hour}h:0{self.mins}m:0{self.sec}s")
+                                if self.color.get() == "Amarilla":
+                                    print(f"Cronometro: {self.hour}h:0{self.mins}m:0{self.sec}s", " | ", f"Aparicion: {self.aparicion + self.hour}h:{self.mins}m:{self.sec}s", end="\r")
+                                if self.color.get() == "Roja":
+                                    print(f"Cronometro: {self.hour}h:0{self.mins}m:0{self.sec}s", " | ", f"Aparicion: {self.aparicion + self.mins}m:{self.sec}s", end="\r")
+                            else:
+                                self.timeLabel.configure(text=f"{self.hour}h:{self.mins}m:{self.sec}s")
+                                if self.color.get() == "Amarilla":
+                                    print(f"Cronometro: {self.hour}h:{self.mins}m:{self.sec}s", " | ", f"Aparicion: {self.aparicion + self.hour}h:{self.mins}m:{self.sec}s", end="\r")
+                                if self.color.get() == "Roja":
+                                    print(f"Cronometro: {self.hour}h:{self.mins}m:{self.sec}s", " | ", f"Aparicion: {self.aparicion + self.mins}m:{self.sec}s", end="\r")
+                            sleep(1)
+                            
         def stop():
             self.check = 0
             print("Pausado...")

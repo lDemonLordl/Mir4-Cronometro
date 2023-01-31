@@ -20,4 +20,3 @@ from customtkinter import CTkScrollbar as ScrollBar
 from customtkinter import CTkSlider as Slider
 from customtkinter import CTkSwitch as Switch
 from customtkinter import CTkSegmentedButton as SegmentedButton
-

@@ -201,7 +201,7 @@ class Reloj(customtk.CTk):
             self.count += 1
             self.row1 += 2
             self.row2 += 2
-            #asfasf asd
+            #
             self.exitButton.destroy()
             self.addMore.destroy()
             self.remItem.destroy()
